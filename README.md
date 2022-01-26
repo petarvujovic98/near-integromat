@@ -25,7 +25,10 @@ We will go over the following topics (if any of the topics seem like you already
 ## Demo
 
 Here is the end product of the app, pretty much like any other Integromat app:
-<!-- TODO: add video link -->
+
+<figure class="video_container">
+  <iframe src="https://www.youtube.com/embed/ECVjn4XXtQo" frameborder="0" allowfullscreen="true"> </iframe>
+</figure>
 
 ## Integromat
 
@@ -76,18 +79,18 @@ The base of my app looks like this:
 
 ```json
 {
-    "baseUrl": "{{getNetwork(parameters)}}",
-    "body": {
-        "jsonrpc": "2.0",
-        "id": "dontcare"
-    },
-    "response": {
-        "output": "{{body.result}}",
-        "valid": "{{isValid(body)}}",
-        "error": {
-            "message": "{{formatError(statusCode,body)}}"
-        }
+  "baseUrl": "{{getNetwork(parameters)}}",
+  "body": {
+    "jsonrpc": "2.0",
+    "id": "dontcare"
+  },
+  "response": {
+    "output": "{{body.result}}",
+    "valid": "{{isValid(body)}}",
+    "error": {
+      "message": "{{formatError(statusCode,body)}}"
     }
+  }
 }
 ```
 
@@ -105,18 +108,18 @@ Modules are where the magic happens. They represent different functions that you
 
 ```json
 {
-    "url": "/",
-    "method": "POST",
-    "body": {
-        "method": "query",
-        "params": {
-            "request_type": "call_function",
-            "account_id": "{{parameters.account_id}}",
-            "method_name": "{{parameters.method_name}}",
-            "args_base64": "{{if(length(parameters.args)=0;'';base64(createJSON(toCollection(parameters.args;'key';'value'))))}}",
-            "{{...}}": "{{getFinalityOrBlockID(parameters)}}"
-        }
+  "url": "/",
+  "method": "POST",
+  "body": {
+    "method": "query",
+    "params": {
+      "request_type": "call_function",
+      "account_id": "{{parameters.account_id}}",
+      "method_name": "{{parameters.method_name}}",
+      "args_base64": "{{if(length(parameters.args)=0;'';base64(createJSON(toCollection(parameters.args;'key';'value'))))}}",
+      "{{...}}": "{{getFinalityOrBlockID(parameters)}}"
     }
+  }
 }
 ```
 
@@ -133,32 +136,32 @@ Parameters represent the user input and we specify the name, label, type and sha
 
 ```json
 [
-    "rpc://accountId",
-    "rpc://finalityOrBlockId",
-    {
-        "name": "method_name",
+  "rpc://accountId",
+  "rpc://finalityOrBlockId",
+  {
+    "name": "method_name",
+    "type": "text",
+    "label": "Method Name",
+    "required": true
+  },
+  {
+    "name": "args",
+    "type": "array",
+    "label": "Arguments",
+    "spec": [
+      {
+        "name": "key",
         "type": "text",
-        "label": "Method Name",
-        "required": true
-    },
-    {
-        "name": "args",
-        "type": "array",
-        "label": "Arguments",
-        "spec": [
-            {
-                "name": "key",
-                "type": "text",
-                "label": "Key"
-            },
-            {
-                "name": "value",
-                "type": "any",
-                "label": "Value"
-            }
-        ]
-    },
-    "rpc://networkSelection"
+        "label": "Key"
+      },
+      {
+        "name": "value",
+        "type": "any",
+        "label": "Value"
+      }
+    ]
+  },
+  "rpc://networkSelection"
 ]
 ```
 
@@ -177,20 +180,20 @@ In my case I have used these RPCs to get some parameter specifications like the 
 
 ```json
 {
-    "response": {
-        "output": {
-            "name": "account_id",
-            "type": "text",
-            "label": "Account ID",
-            "multiline": false,
-            "required": true,
-            "validate": {
-                "min": 2,
-                "max": 64,
-                "pattern": "^(([a-z\\d]+[\\-_])*[a-z\\d]+\\.)*([a-z\\d]+[\\-_])*[a-z\\d]+$"
-            }
-        }
+  "response": {
+    "output": {
+      "name": "account_id",
+      "type": "text",
+      "label": "Account ID",
+      "multiline": false,
+      "required": true,
+      "validate": {
+        "min": 2,
+        "max": 64,
+        "pattern": "^(([a-z\\d]+[\\-_])*[a-z\\d]+\\.)*([a-z\\d]+[\\-_])*[a-z\\d]+$"
+      }
     }
+  }
 }
 ```
 
@@ -227,7 +230,8 @@ Another benefit of using these custom functions is, as I mentioned above, code r
 
 ```js
 function formatError(statusCode, { error }) {
-  const info = error.cause.info.error_message || JSON.stringify(error.cause.info);
+  const info =
+    error.cause.info.error_message || JSON.stringify(error.cause.info);
   const type = error.name;
   const cause = error.cause.name;
 
@@ -278,10 +282,10 @@ In order to work with the NEAR protocol you have some options:
 - [near-sdk-rs](https://docs.near.org/docs/develop/contracts/rust/intro) - for developing smart contracts in Rust
 - [NEAR RPC API](https://docs.near.org/docs/api/rpc) - for interacting with NEAR from any other environment
 
-When creating a custom app in Integromat, you don't have access to the NPM ecosystem, so you have to rely on REST or GraphQL calls to third party APIs to do the heavy lifting. Fortunately, ***there is nothing preventing you from performing calls to the RPC API***. You can just call the same endpoint like in GraphQL, and pass in parameters in the body, which will get serialized as JSON by Integromat, like you saw in the [module](#module) above.
+When creating a custom app in Integromat, you don't have access to the NPM ecosystem, so you have to rely on REST or GraphQL calls to third party APIs to do the heavy lifting. Fortunately, **_there is nothing preventing you from performing calls to the RPC API_**. You can just call the same endpoint like in GraphQL, and pass in parameters in the body, which will get serialized as JSON by Integromat, like you saw in the [module](#module) above.
 
 What I did for this app is basically go through the RPC API [documentation](https://docs.near.org/docs/api/rpc) and create a module for each of the endpoints available.
-The documentation is pretty clear, with examples and descriptions for each endpoint, as well as error explanations. And if you find yourself in a situation where you can't figure out how to handle a certain action/endpoint, don't worry I had my share of *deer in the headlights look*, and the best way to get out is by checking how things were handled in the [near-api-js](https://github.com/near/near-api-js/) library.
+The documentation is pretty clear, with examples and descriptions for each endpoint, as well as error explanations. And if you find yourself in a situation where you can't figure out how to handle a certain action/endpoint, don't worry I had my share of _deer in the headlights look_, and the best way to get out is by checking how things were handled in the [near-api-js](https://github.com/near/near-api-js/) library.
 
 ## Tips, tricks and issues
 
