@@ -4,6 +4,7 @@ This article describes how I built the NEAR app for Integromat, including what r
 what sites I used to learn and build the app as well as some tips on what to avoid and what to not to.
 
 **Note**: You can also check out the YouTube playlist I created for this process [here](https://youtube.com/playlist?list=PL3ZFE2cBGD2MqnYWHC506HwoG3rdrTgoR).
+**Invite Link**: Here is the [invite link](https://www.integromat.com/en/apps/invite/54385d7a69835485dc1b15fa7cc0009e) if you want to try out the app.
 
 ## Overview
 
